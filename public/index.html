@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Linux Style SpeedTest</title>
+  <style>
+    body { background: black; color: #0f0; font-family: monospace; text-align:center; }
+    .box { display:inline-block; margin:20px; padding:20px; border:1px solid #0f0; border-radius:10px; }
+    button { background:black; border:1px solid #0f0; color:#0f0; padding:10px 20px; cursor:pointer; }
+    button:hover { background:#0f0; color:black; }
+  </style>
+</head>
+<body>
+  <h1>Speed Test</h1>
+  <button onclick="runTest()">START SPEED TEST ⚡</button>
+  <div id="results" style="margin-top:30px;">
+    <div class="box">PING: <span id="ping">-</span> ms</div>
+    <div class="box">DOWNLOAD: <span id="download">-</span> Mbps</div>
+    <div class="box">UPLOAD: <span id="upload">-</span> Mbps</div>
+  </div>
+
+  <script>
+    async function runTest() {
+      document.getElementById("ping").innerText = "...";
+      document.getElementById("download").innerText = "...";
+      document.getElementById("upload").innerText = "...";
+
+      try {
+        let res = await fetch("http://localhost:3000/api/speedtest");
+        let data = await res.json();
+
+        document.getElementById("ping").innerText = data.ping;
+        document.getElementById("download").innerText = data.download;
+        document.getElementById("upload").innerText = data.upload;
+      } catch (err) {
+        alert("Speedtest failed: " + err);
+      }
+    }
+  </script>
+</body>
+</html>
