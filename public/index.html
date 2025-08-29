@@ -1,41 +1,457 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Linux Style SpeedTest</title>
-  <style>
-    body { background: black; color: #0f0; font-family: monospace; text-align:center; }
-    .box { display:inline-block; margin:20px; padding:20px; border:1px solid #0f0; border-radius:10px; }
-    button { background:black; border:1px solid #0f0; color:#0f0; padding:10px 20px; cursor:pointer; }
-    button:hover { background:#0f0; color:black; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Test | learnlinuxonline.xyz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background: #0c0c0c;
+            color: #00ff00;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #162a0c 0%, transparent 20%),
+                radial-gradient(circle at 75% 75%, #0c2a1a 0%, transparent 20%);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #00ff00;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .domain {
+            color: #00cc66;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        
+        .terminal {
+            background: rgba(10, 15, 10, 0.9);
+            border: 1px solid #00cc00;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .terminal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #00ff00, #00cc66, #00ff00);
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #00cc00;
+        }
+        
+        .terminal-title {
+            font-weight: bold;
+            color: #00ff00;
+        }
+        
+        .terminal-controls {
+            display: flex;
+        }
+        
+        .control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        
+        .close { background-color: #ff5f56; }
+        .minimize { background-color: #ffbd2e; }
+        .maximize { background-color: #27c93f; }
+        
+        .terminal-body {
+            min-height: 200px;
+        }
+        
+        .prompt {
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+        
+        .command {
+            color: #00ccff;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: #00ff00;
+            margin-left: 4px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .speedtest-area {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .start-btn {
+            background: transparent;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-btn:hover {
+            background: #00ff00;
+            color: #0c0c0c;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        
+        .start-btn:active {
+            transform: translateY(2px);
+        }
+        
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .result-cards {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .card {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(0, 30, 0, 0.3);
+            border: 1px solid #00cc00;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .card-title {
+            color: #00cc66;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .card-unit {
+            color: #00cc66;
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #002200;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #00cc00, #00ff00);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            border-top: 1px solid #00ff00;
+            color: #00cc66;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .result-cards {
+                flex-direction: column;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Matrix rain effect */
+        .matrix-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-  <h1>Speed Test</h1>
-  <button onclick="runTest()">START SPEED TEST ⚡</button>
-  <div id="results" style="margin-top:30px;">
-    <div class="box">PING: <span id="ping">-</span> ms</div>
-    <div class="box">DOWNLOAD: <span id="download">-</span> Mbps</div>
-    <div class="box">UPLOAD: <span id="upload">-</span> Mbps</div>
-  </div>
+    <div class="matrix-rain" id="matrixRain"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-terminal"></i> SPEEDTEST
+            </div>
+            <div class="domain">speed.learnlinuxonline.xyz</div>
+        </header>
+        
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-title">speedtest --terminal</div>
+                <div class="terminal-controls">
+                    <div class="control close"></div>
+                    <div class="control minimize"></div>
+                    <div class="control maximize"></div>
+                </div>
+            </div>
+            <div class="terminal-body">
+                <div class="prompt">
+                    user@learnlinuxonline:~$ <span class="command">speedtest --help</span>
+                </div>
+                <div class="prompt">
+                    Usage: speedtest [options]
+                </div>
+                <div class="prompt">
+                    Options:
+                </div>
+                <div class="prompt">
+                    &nbsp;&nbsp;--server ID&nbsp;&nbsp;&nbsp;&nbsp;Use a specific server
+                </div>
+                <div class="prompt">
+                    &nbsp;&nbsp;--list&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Display list of servers
+                </div>
+                <div class="prompt">
+                    &nbsp;&nbsp;--simple&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only show ping, download, upload values
+                </div>
+                <div class="prompt">
+                    &nbsp;&nbsp;--terminal&nbsp;&nbsp;&nbsp;&nbsp;Terminal style output (default)
+                </div>
+                <div class="prompt">
+                    user@learnlinuxonline:~$ <span class="command">speedtest --terminal</span><span class="cursor"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="speedtest-area">
+            <button class="start-btn" id="startTest">
+                <i class="fas fa-bolt"></i> START SPEED TEST
+            </button>
+            
+            <div class="progress-bar">
+                <div class="progress" id="testProgress"></div>
+            </div>
+            
+            <div class="results" id="results">
+                <div class="result-cards">
+                    <div class="card">
+                        <div class="card-title">PING</div>
+                        <div class="card-value" id="pingValue">12</div>
+                        <div class="card-unit">ms</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">DOWNLOAD</div>
+                        <div class="card-value" id="downloadValue">86</div>
+                        <div class="card-unit">Mbps</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">UPLOAD</div>
+                        <div class="card-value" id="uploadValue">42</div>
+                        <div class="card-unit">Mbps</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>learnlinuxonline.xyz &copy; 2023 | Linux Terminal Inspired Speed Test</p>
+            <p>Type 'speedtest --help' for more options</p>
+        </footer>
+    </div>
 
-  <script>
-    async function runTest() {
-      document.getElementById("ping").innerText = "...";
-      document.getElementById("download").innerText = "...";
-      document.getElementById("upload").innerText = "...";
-
-      try {
-        let res = await fetch("let res = await fetch("https://speedtest-app.onrender.com/api/speedtest");
-");
-        let data = await res.json();
-
-        document.getElementById("ping").innerText = data.ping;
-        document.getElementById("download").innerText = data.download;
-        document.getElementById("upload").innerText = data.upload;
-      } catch (err) {
-        alert("Speedtest failed: " + err);
-      }
-    }
-  </script>
+    <script>
+        // Simulate matrix rain effect
+        function createMatrixRain() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById('matrixRain');
+            
+            container.appendChild(canvas);
+            
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            
+            const letters = '01010101010101010101010101';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            
+            const drops = [];
+            for(let i = 0; i < columns; i++) {
+                drops[i] = 1;
+            }
+            
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 10, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#00cc00';
+                ctx.font = `${fontSize}px monospace`;
+                
+                for(let i = 0; i < drops.length; i++) {
+                    const text = letters[Math.floor(Math.random() * letters.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(draw, 33);
+            
+            window.addEventListener('resize', () => {
+                canvas.width = container.offsetWidth;
+                canvas.height = container.offsetHeight;
+            });
+        }
+        
+        // Simulate speed test
+        function runSpeedTest() {
+            const progressBar = document.getElementById('testProgress');
+            const results = document.getElementById('results');
+            const pingValue = document.getElementById('pingValue');
+            const downloadValue = document.getElementById('downloadValue');
+            const uploadValue = document.getElementById('uploadValue');
+            const startBtn = document.getElementById('startTest');
+            
+            startBtn.disabled = true;
+            progressBar.style.width = '0%';
+            results.style.display = 'none';
+            
+            // Simulate ping test
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 5;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Generate random results
+                    const ping = Math.floor(Math.random() * 50) + 5;
+                    const download = Math.floor(Math.random() * 200) + 50;
+                    const upload = Math.floor(Math.random() * 100) + 10;
+                    
+                    pingValue.textContent = ping;
+                    downloadValue.textContent = download;
+                    uploadValue.textContent = upload;
+                    
+                    results.style.display = 'block';
+                    startBtn.disabled = false;
+                    
+                    // Add result to terminal
+                    const terminalBody = document.querySelector('.terminal-body');
+                    const newPrompt = document.createElement('div');
+                    newPrompt.className = 'prompt';
+                    newPrompt.innerHTML = `Ping: ${ping} ms | Download: ${download} Mbps | Upload: ${upload} Mbps`;
+                    terminalBody.appendChild(newPrompt);
+                    
+                    // Add new command prompt
+                    const commandPrompt = document.createElement('div');
+                    commandPrompt.className = 'prompt';
+                    commandPrompt.innerHTML = 'user@learnlinuxonline:~$ <span class="command"></span><span class="cursor"></span>';
+                    terminalBody.appendChild(commandPrompt);
+                    
+                    // Scroll to bottom
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                }
+            }, 100);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createMatrixRain();
+            
+            document.getElementById('startTest').addEventListener('click', runSpeedTest);
+            
+            // Add some initial terminal output
+            const terminalBody = document.querySelector('.terminal-body');
+            const initialOutput = [
+                "Initializing network diagnostics...",
+                "Checking connection to nearest server...",
+                "Server: LinuxNet #4 (Mumbai, IN)",
+                "Testing IP: 192.168.0.1",
+                "Ready for testing."
+            ];
+            
+            initialOutput.forEach(line => {
+                const outputLine = document.createElement('div');
+                outputLine.className = 'prompt';
+                outputLine.textContent = line;
+                terminalBody.appendChild(outputLine);
+            });
+            
+            // Scroll to bottom
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        });
+    </script>
 </body>
 </html>
